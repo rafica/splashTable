@@ -1,4 +1,4 @@
-
+// some changes!!..:)
 /*
  * INSERTION
  * 1) Have h hash multipliers
