@@ -3,7 +3,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
-// some changes!!..:)
 /*
  * INSERTION
  * 1) Have h hash multipliers
