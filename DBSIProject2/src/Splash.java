@@ -1,3 +1,8 @@
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+
 // some changes!!..:)
 /*
  * INSERTION
@@ -18,12 +23,13 @@ public class Splash {
     static int B, R, S, h; 
     static int hashMultipliers[];
     static int hashTable[][]; // Rows = 2^S/B; Columns = 2B[key + payload]
+    static int num_inserted = 0;
     
 	public static void main(String args[]) {
 		
 		// Accept command line args here and call appropriate functions
 		// Instantiate hashMultipliers and hashTable
-		B = 6;
+		B = 2;
 		h = 5;
 		S = 5;
 		
@@ -32,6 +38,7 @@ public class Splash {
 		getHashMultipliers();
 		init();
 		insert(25, 3323);
+		dump();
 		
 		//print2DArray(hashTable);
 		 
@@ -128,9 +135,10 @@ public class Splash {
 		
 		System.out.println("Final Index : " + index);
 		
-		if(inserted)
+		if(inserted) {
+			num_inserted++;
 			break;
-		
+		}
 		}
 		
 		if(!inserted){
@@ -148,6 +156,43 @@ public class Splash {
 	}
 	
 	private static void dump() {
+		
+		try {
+			
+		String content = new String();
+		
+		content += B + " " + S + " " + h + " " + num_inserted + "\n";
+		
+		for(int i = 0; i < hashMultipliers.length; i++) 
+			content += hashMultipliers[i] + " ";
+		
+		content += "\n";
+		
+		for(int i = 0; i < hashTable.length; i++) {
+			for(int j = 0; j < hashTable[0].length; j++)
+				content += hashTable[i][j] + " ";
+			
+		content += "\n";
+		}
+		
+		 
+		File file = new File("dump.txt");
+
+		// if file doesnt exists, then create it
+		if (!file.exists()) {
+			file.createNewFile();
+		}
+
+		FileWriter fw = new FileWriter(file.getAbsoluteFile());
+		BufferedWriter bw = new BufferedWriter(fw);
+		bw.write(content);
+		bw.close();
+	}
+		
+		catch(IOException e) {
+			
+			System.out.println("Exception : " + e);
+		}
 		
 	}
 	
