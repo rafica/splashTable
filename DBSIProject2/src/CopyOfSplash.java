@@ -38,6 +38,7 @@ public class CopyOfSplash {
 		getHashMultipliers();
 		init();
 		insert(25, 3323);
+		System.out.println(probe(25));
 		dump();
 		
 		//print2DArray(hashTable);
@@ -152,7 +153,42 @@ public class CopyOfSplash {
 	
 	
 	private static int probe(int key) {
-		return 0;
+		int payloadIndex=0;
+		int bucketIndex =0;
+		
+		for(int i = 0; i < hashMultipliers.length; i++) {
+			int val = hashMultipliers[i] * key; //key
+			long multiplier = (long)(val % Math.pow(2,32));
+			long temp = multiplier & (long)(Math.pow(2,32) - 1);
+		
+			//System.out.println("Multiplier : " + multiplier);
+		
+			System.out.println("Temp : " + temp);
+			int shiftBits = getShiftBits((int)(Math.pow(2,S)/B - 1));
+			System.out.println("Test" + shiftBits);
+			int finalShiftBits = 32 - shiftBits;
+			System.out.println("Test1 " + finalShiftBits);
+			multiplier = temp>>finalShiftBits; /* ??? How many bits to shift ??? */
+		
+			if(multiplier > (int)(Math.pow(2,S)/B - 1))
+				multiplier = (int)(Math.pow(2,S)/B - 1);
+		
+			int index = (int)multiplier; 
+		
+			
+			for(int k = 0; k < 2*B; k = k+2) {
+				int c = (key==hashTable[index][k])?1:0;
+				payloadIndex+=c*k;
+				
+				
+			}
+			int d =(payloadIndex!=0)?1:0;
+			bucketIndex+=d*index;
+			
+		}
+		//System.out.println(bucketIndex+","+payloadIndex);
+		//return 0;
+		return hashTable[bucketIndex][payloadIndex+1];
 	}
 	
 	private static void dump() {
