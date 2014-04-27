@@ -37,8 +37,15 @@ public class CopyOfSplash {
 		
 		getHashMultipliers();
 		init();
-		insert(25, 3323);
-		System.out.println(probe(25));
+		insert(25, 33231);
+		insert(12,35334);
+		insert(10, 33236);
+		insert(11,3535);
+		insert(22, 33234);
+		insert(13,3533);
+		insert(24, 33232);
+		insert(9,3531);
+		System.out.println(probe(99));
 		dump();
 		
 		//print2DArray(hashTable);
@@ -155,40 +162,47 @@ public class CopyOfSplash {
 	private static int probe(int key) {
 		int payloadIndex=0;
 		int bucketIndex =0;
-		
+		System.out.println("in probe");
+		int count[] = new int[hashTable.length];
+	
 		for(int i = 0; i < hashMultipliers.length; i++) {
+			
 			int val = hashMultipliers[i] * key; //key
 			long multiplier = (long)(val % Math.pow(2,32));
 			long temp = multiplier & (long)(Math.pow(2,32) - 1);
 		
 			//System.out.println("Multiplier : " + multiplier);
 		
-			System.out.println("Temp : " + temp);
+			
 			int shiftBits = getShiftBits((int)(Math.pow(2,S)/B - 1));
-			System.out.println("Test" + shiftBits);
+			
 			int finalShiftBits = 32 - shiftBits;
-			System.out.println("Test1 " + finalShiftBits);
+			
 			multiplier = temp>>finalShiftBits; /* ??? How many bits to shift ??? */
 		
 			if(multiplier > (int)(Math.pow(2,S)/B - 1))
 				multiplier = (int)(Math.pow(2,S)/B - 1);
 		
 			int index = (int)multiplier; 
-		
-			
+			count[index] = count[index] + 1;
+			System.out.println(index);
+			int payloadIndexTemp = 0;
 			for(int k = 0; k < 2*B; k = k+2) {
 				int c = (key==hashTable[index][k])?1:0;
-				payloadIndex+=c*k;
-				
-				
+				payloadIndexTemp+=c*(k+1);	
 			}
-			int d =(payloadIndex!=0)?1:0;
-			bucketIndex+=d*index;
+			int d =(payloadIndexTemp!=0)?1:0;
+			payloadIndex+= payloadIndexTemp*(d/count[index]);
+			bucketIndex = bucketIndex + (d/count[index])*index;
+			
+			
+			System.out.println(bucketIndex+","+payloadIndex);
 			
 		}
-		//System.out.println(bucketIndex+","+payloadIndex);
+		System.out.println(bucketIndex+","+payloadIndex);
 		//return 0;
-		return hashTable[bucketIndex][payloadIndex+1];
+		
+		return payloadIndex & hashTable[bucketIndex][payloadIndex];
 	}
 	
 	private static void dump() {
