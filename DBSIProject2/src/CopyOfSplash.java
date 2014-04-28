@@ -158,7 +158,7 @@ public class CopyOfSplash {
 		
 		}
 	
-	
+
 	private static int probe(int key) {
 		int payloadIndex=0;
 		int bucketIndex =0;
@@ -180,9 +180,10 @@ public class CopyOfSplash {
 			
 			multiplier = temp>>finalShiftBits; /* ??? How many bits to shift ??? */
 		
-			if(multiplier > (int)(Math.pow(2,S)/B - 1))
-				multiplier = (int)(Math.pow(2,S)/B - 1);
-		
+			int flag = (multiplier > (int)(Math.pow(2, S)/B - 1))?1:0;
+			
+			multiplier = flag * (int)(Math.pow(2, S)/B-1) + ((flag==1)?0:1) * multiplier;
+			
 			int index = (int)multiplier; 
 			count[index] = count[index] + 1;
 			System.out.println(index);
