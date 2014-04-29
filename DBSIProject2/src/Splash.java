@@ -338,7 +338,7 @@ public class Splash {
 			return i - 1;
 	}
 	
-	public static int[] reinsert(int key, int payload) {
+	private static int[] reinsert(int key, int payload) {
 		
 		boolean inserted = false;
 		
@@ -394,7 +394,7 @@ public class Splash {
 		}
 	}
 	
-private static void print2DArray(int a[][]) {
+	private static void print2DArray(int a[][]) {
 		
 		for(int i = 0; i < a.length; i++) {
 			for(int j = 0; j < a[0].length; j++)
