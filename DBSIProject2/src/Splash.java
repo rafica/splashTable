@@ -29,8 +29,8 @@ public class Splash {
 		
 		// Accept command line args here and call appropriate functions
 		// Instantiate hashMultipliers and hashTable
-		B = 2;
-		h = 5;
+		B = 4;
+		h = 2;
 		S = 5;
 		
 		hashMultipliers = new int[5];
@@ -41,9 +41,14 @@ public class Splash {
 		insert(21, 123);
 		insert(12, 15);
 		insert(5,55);
+		insert(26, 333);
+		insert(20, 1253);
+		insert(16, 125);
+		insert(2,555);
+		
 		
 		System.out.println(probe(12));
-		System.out.println(probe(25));
+		System.out.println(probe(22));
 		
 		dump();
 		
@@ -206,8 +211,8 @@ public class Splash {
 		}
 		System.out.println(bucketIndex+","+payloadIndex);
 		//return 0;
-		
-		return payloadIndex & hashTable[bucketIndex][payloadIndex];
+		int payloadFlag = payloadIndex!=0? 1:0;
+		return payloadFlag & hashTable[bucketIndex][payloadIndex];
 
 	}
 	
