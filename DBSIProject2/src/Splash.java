@@ -19,10 +19,11 @@ import java.io.IOException;
 
 public class Splash {
 	
-    static int B, R, S, h; 
-    static int hashMultipliers[];
-    static int hashTable[][]; // Rows = 2^S/B; Columns = 2B[key + payload]
-    static int num_inserted = 0;
+    private static int B, R, S, h; 
+    private static int hashMultipliers[];
+    private static int hashTable[][]; // Rows = 2^S/B; Columns = 2B[key + payload]
+    private static int num_inserted = 0;
+    private static int oldest[];
     
 	public static void main(String args[]) {
 		
@@ -37,6 +38,7 @@ public class Splash {
 		getHashMultipliers();
 		init();
 		insert(25, 3323);
+		insert(25, 123);
 		dump();
 		
 		//print2DArray(hashTable);
@@ -81,11 +83,17 @@ public class Splash {
 				hashTable[i][j] = 0;
 		
 		//print2DArray(hashTable);
+		oldest = new int[numBuckets];
 		
+		for(int i = 0; i < numBuckets; i++)
+			oldest[i] = 0;
 	}
 	
 	private static void insert(int key, int payload) {
 		/* Insert key and payload into the hash table*/
+		
+		if(keyPresent(key))
+			return;
 		
 		boolean inserted = false;
 		
@@ -117,6 +125,7 @@ public class Splash {
 		if(multiplier > (int)(Math.pow(2,S)/B - 1))
 			multiplier = (int)(Math.pow(2,S)/B - 1);
 		
+		
 		int index = (int)multiplier; 
 		
 		//int index = (int)((int)(Math.pow(2,S)/B) * temp);
@@ -143,7 +152,28 @@ public class Splash {
 		if(!inserted){
 			
 			/*Found no place in the first iteration!..now continue reinserting <= R times */
+			int kickedout[] = {key,payload};
+	
+			for(int i = 0; i < R; i++) {
+				
+				kickedout = reinsert(kickedout[0],kickedout[1]);
+				if(kickedout[0] == 0 && kickedout[1] == 0) {
+					inserted = true;
+					break; // Done!..everything inserted 
+				}
+				
+					
+			}
 			
+			if(inserted) 
+			   num_inserted++;
+			
+			// Couldn't reinsert even after R tries
+			else {
+				
+				dump();
+				System.exit(0);
+			}
 			
 		}
 		
@@ -206,6 +236,45 @@ public class Splash {
 		return true;
 	}
 	
+	private static boolean keyPresent(int key) {
+		
+		boolean present  = false;
+		
+		for(int i = 0; i < hashMultipliers.length; i++) {
+			
+			int val = hashMultipliers[i] * key; //key
+			
+			long multiplier = (long)(val % Math.pow(2,32));
+			
+			long temp = multiplier & (long)(Math.pow(2,32) - 1);
+			
+			int shiftBits = getShiftBits((int)(Math.pow(2,S)/B - 1));
+				
+			int finalShiftBits = 32 - shiftBits;
+
+			multiplier = temp>>finalShiftBits; /* ??? How many bits to shift ??? */
+			
+			if(multiplier > (int)(Math.pow(2,S)/B - 1))
+				multiplier = (int)(Math.pow(2,S)/B - 1);
+			
+			int index = (int)multiplier; 
+			
+			for(int j = 0; j < 2*B; j = j + 2) {
+				
+				if(hashTable[index][j] == key) {
+					
+					present = true;
+				}
+					
+			}
+			
+			if(present)
+				break;
+		}
+		
+		return present;
+	}
+	
 	
 	private static int getShiftBits(int num) {
 		
@@ -221,6 +290,86 @@ public class Splash {
 		else
 			return i - 1;
 	}
+	
+	public static int[] reinsert(int key, int payload) {
+		
+		boolean inserted = false;
+		
+		for(int i = 0; i < hashMultipliers.length; i++) {
+		
+		int val = hashMultipliers[i] * key; //key
+		
+		long multiplier = (long)(val % Math.pow(2,32));
+		
+		long temp = multiplier & (long)(Math.pow(2,32) - 1);
+		
+		int shiftBits = getShiftBits((int)(Math.pow(2,S)/B - 1));
+			
+		int finalShiftBits = 32 - shiftBits;
+		
+		multiplier = temp>>finalShiftBits; /* ??? How many bits to shift ??? */
+		
+		
+		if(multiplier > (int)(Math.pow(2,S)/B - 1))
+			multiplier = (int)(Math.pow(2,S)/B - 1);
+		
+		int index = (int)multiplier; 
+		
+		//int index = (int)((int)(Math.pow(2,S)/B) * temp);
+		
+		for(int k = 0; k < 2*B; k = k+2) {
+			
+			if(hashTable[index][k] == 0) {
+				
+				hashTable[index][k] = key;
+				hashTable[index][k + 1] = payload;
+				inserted = true;
+				break;
+			}
+		}
+		
+		if(inserted) {
+			
+			int no_reinsert[] = {0,0};
+			return no_reinsert;
+		}
+		}
+		
+		//kick out some element[oldest] and insert this one..return the kicked out element to reinsert it
+		
+					
+			int val = hashMultipliers[0] * key; //key
+			
+			long multiplier = (long)(val % Math.pow(2,32));
+			
+			long temp = multiplier & (long)(Math.pow(2,32) - 1);
+			
+			int shiftBits = getShiftBits((int)(Math.pow(2,S)/B - 1));
+				
+			int finalShiftBits = 32 - shiftBits;
+			
+			multiplier = temp>>finalShiftBits; /* ??? How many bits to shift ??? */
+			
+			
+			if(multiplier > (int)(Math.pow(2,S)/B - 1))
+				multiplier = (int)(Math.pow(2,S)/B - 1);
+			
+			int index = (int)multiplier; 
+			
+			
+			int to_reinsert[] = {hashTable[index][oldest[index]],hashTable[index][oldest[index] + 1]}; 
+			hashTable[index][oldest[index]] = key;
+			hashTable[index][oldest[index] + 1] = payload;
+			
+			if(oldest[index] != 2*B - 2)
+				oldest[index] += 2;
+			else
+				oldest[index] = 0;
+		
+		return to_reinsert;
+		
+	}
+	
 	
 	private static void print1DArray(int a[]) {
 		
