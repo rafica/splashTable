@@ -38,10 +38,16 @@ public class Splash {
 		getHashMultipliers();
 		init();
 		insert(25, 3323);
-		insert(25, 123);
+		insert(21, 123);
+		insert(12, 15);
+		insert(5,55);
+		
+		System.out.println(probe(12));
+		System.out.println(probe(25));
+		
 		dump();
 		
-		//print2DArray(hashTable);
+		print2DArray(hashTable);
 		 
 	}
 	
@@ -61,13 +67,14 @@ public class Splash {
 		
 		if(notExists(hashMultipliers,random_no)) {
 			hashMultipliers[i] = random_no;
+						
 			break;
 		}
 	}
 		//System.out.println("Random no. : " + Random_No);
 	}
 		
-		print1DArray(hashMultipliers);
+		//print1DArray(hashMultipliers);
 		
 		
 	}
@@ -99,34 +106,7 @@ public class Splash {
 		
 		for(int i = 0; i < hashMultipliers.length; i++) {
 		
-		int val = hashMultipliers[i] * key; //key
-		
-		long multiplier = (long)(val % Math.pow(2,32));
-		
-		
-		long temp = multiplier & (long)(Math.pow(2,32) - 1);
-		
-		//System.out.println("Multiplier : " + multiplier);
-		
-		System.out.println("Temp : " + temp);
-		
-		int shiftBits = getShiftBits((int)(Math.pow(2,S)/B - 1));
-			
-		System.out.println("Test" + shiftBits);
-		
-		int finalShiftBits = 32 - shiftBits;
-		
-		System.out.println("Test1 " + finalShiftBits);
-		
-		
-		multiplier = temp>>finalShiftBits; /* ??? How many bits to shift ??? */
-		
-		
-		if(multiplier > (int)(Math.pow(2,S)/B - 1))
-			multiplier = (int)(Math.pow(2,S)/B - 1);
-		
-		
-		int index = (int)multiplier; 
+		int index = getIndex(hashMultipliers[i], key); 
 		
 		//int index = (int)((int)(Math.pow(2,S)/B) * temp);
 		
@@ -141,7 +121,7 @@ public class Splash {
 			}
 		}
 		
-		System.out.println("Final Index : " + index);
+		//System.out.println("Final Index : " + index);
 		
 		if(inserted) {
 			num_inserted++;
@@ -170,7 +150,7 @@ public class Splash {
 			
 			// Couldn't reinsert even after R tries
 			else {
-				
+				System.out.println("Cant insert!");
 				dump();
 				System.exit(0);
 			}
@@ -180,8 +160,55 @@ public class Splash {
 		}
 	
 	
+	
 	private static int probe(int key) {
-		return 0;
+		
+		int payloadIndex=0;
+		int bucketIndex =0;
+		//System.out.println("in probe");
+		int count[] = new int[hashTable.length];
+	
+		for(int i = 0; i < hashMultipliers.length; i++) {
+			
+			int val = hashMultipliers[i] * key; //key
+			long hashVal = (long)(val % Math.pow(2,32));
+			long temp = hashVal & (long)(Math.pow(2,32) - 1);
+		
+			//System.out.println("Multiplier : " + multiplier);
+		
+			
+			int shiftBits = getShiftBits((int)(Math.pow(2,S)/B - 1));
+			
+			int finalShiftBits = 32 - shiftBits;
+			
+			long newHashVal = temp>>finalShiftBits; /* ??? How many bits to shift ??? */
+		
+			int flag = (newHashVal > (int)(Math.pow(2, S)/B - 1))?1:0;
+			
+			newHashVal = flag * (int)(Math.pow(2, S)/B-1) + ((flag==1)?0:1) * newHashVal;
+			
+			int index = (int)newHashVal; 
+			
+			count[index] = count[index] + 1;
+			//System.out.println(index);
+			int payloadIndexTemp = 0;
+			for(int k = 0; k < 2*B; k = k+2) {
+				int c = (key==hashTable[index][k])?1:0;
+				payloadIndexTemp+=c*(k+1);	
+			}
+			int d =(payloadIndexTemp!=0)?1:0;
+			payloadIndex+= payloadIndexTemp*(d/count[index]);
+			bucketIndex = bucketIndex + (d/count[index])*index;
+			
+			
+			//System.out.println(bucketIndex+","+payloadIndex);
+			
+		}
+		System.out.println(bucketIndex+","+payloadIndex);
+		//return 0;
+		
+		return payloadIndex & hashTable[bucketIndex][payloadIndex];
+
 	}
 	
 	private static void dump() {
@@ -236,28 +263,48 @@ public class Splash {
 		return true;
 	}
 	
+	
+	private static int getIndex(int hashMult, int key) {
+		
+		int val = hashMult * key; //key
+		
+		long hashVal = (long)(val % Math.pow(2,32));
+		
+		
+		long temp = hashVal & (long)(Math.pow(2,32) - 1);
+		
+		//System.out.println("Multiplier : " + multiplier);
+		
+		//System.out.println("Temp : " + temp);
+		
+		int shiftBits = getShiftBits((int)(Math.pow(2,S)/B - 1));
+			
+		//System.out.println("Test" + shiftBits);
+		
+		int finalShiftBits = 32 - shiftBits;
+		
+		//System.out.println("Test1 " + finalShiftBits);
+		
+		
+		long newHashVal = temp>>finalShiftBits; /* ??? How many bits to shift ??? */
+		
+		
+		/*if(multiplier > (int)(Math.pow(2,S)/B - 1))
+			multiplier = (int)(Math.pow(2,S)/B - 1);*/
+		
+		
+		int index = (int)newHashVal; 
+		
+		return index;
+	}
+	
 	private static boolean keyPresent(int key) {
 		
 		boolean present  = false;
 		
 		for(int i = 0; i < hashMultipliers.length; i++) {
 			
-			int val = hashMultipliers[i] * key; //key
-			
-			long multiplier = (long)(val % Math.pow(2,32));
-			
-			long temp = multiplier & (long)(Math.pow(2,32) - 1);
-			
-			int shiftBits = getShiftBits((int)(Math.pow(2,S)/B - 1));
-				
-			int finalShiftBits = 32 - shiftBits;
-
-			multiplier = temp>>finalShiftBits; /* ??? How many bits to shift ??? */
-			
-			if(multiplier > (int)(Math.pow(2,S)/B - 1))
-				multiplier = (int)(Math.pow(2,S)/B - 1);
-			
-			int index = (int)multiplier; 
+			int index = getIndex(hashMultipliers[i], key); 
 			
 			for(int j = 0; j < 2*B; j = j + 2) {
 				
@@ -297,23 +344,7 @@ public class Splash {
 		
 		for(int i = 0; i < hashMultipliers.length; i++) {
 		
-		int val = hashMultipliers[i] * key; //key
-		
-		long multiplier = (long)(val % Math.pow(2,32));
-		
-		long temp = multiplier & (long)(Math.pow(2,32) - 1);
-		
-		int shiftBits = getShiftBits((int)(Math.pow(2,S)/B - 1));
-			
-		int finalShiftBits = 32 - shiftBits;
-		
-		multiplier = temp>>finalShiftBits; /* ??? How many bits to shift ??? */
-		
-		
-		if(multiplier > (int)(Math.pow(2,S)/B - 1))
-			multiplier = (int)(Math.pow(2,S)/B - 1);
-		
-		int index = (int)multiplier; 
+		int index = getIndex(hashMultipliers[i], key); 
 		
 		//int index = (int)((int)(Math.pow(2,S)/B) * temp);
 		
@@ -337,25 +368,8 @@ public class Splash {
 		
 		//kick out some element[oldest] and insert this one..return the kicked out element to reinsert it
 		
-					
-			int val = hashMultipliers[0] * key; //key
 			
-			long multiplier = (long)(val % Math.pow(2,32));
-			
-			long temp = multiplier & (long)(Math.pow(2,32) - 1);
-			
-			int shiftBits = getShiftBits((int)(Math.pow(2,S)/B - 1));
-				
-			int finalShiftBits = 32 - shiftBits;
-			
-			multiplier = temp>>finalShiftBits; /* ??? How many bits to shift ??? */
-			
-			
-			if(multiplier > (int)(Math.pow(2,S)/B - 1))
-				multiplier = (int)(Math.pow(2,S)/B - 1);
-			
-			int index = (int)multiplier; 
-			
+			int index = getIndex(hashMultipliers[0], key); 	// No place to insert, just use one (first) hash function for now..and kick out oldest element in that bucket
 			
 			int to_reinsert[] = {hashTable[index][oldest[index]],hashTable[index][oldest[index] + 1]}; 
 			hashTable[index][oldest[index]] = key;
@@ -365,6 +379,8 @@ public class Splash {
 				oldest[index] += 2;
 			else
 				oldest[index] = 0;
+			
+			
 		
 		return to_reinsert;
 		
