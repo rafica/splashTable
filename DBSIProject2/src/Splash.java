@@ -7,18 +7,9 @@ import java.io.IOException;
 import java.io.PrintWriter;
 
 /*
- * INSERTION
- * 1) Have h hash multipliers
- * 2) The number of hash buckets is 2^S/B ... and size of each bucket is B
- * 3) Create the data structure with appropriate sizes [can use arrays of user defined data structure]
- * 4) Read inputs from the input file and do multiplicative hashing for each input
- * 5) Put it in the first bucket that is empty..if not empty do (up to R) reinsertions 
- * 
- * PROBING
- * ****** No ifs or while loops allowed here!!
- * 1) Compute h hash functions for the key
- * 2) Probe buckets each of the computed value and in each bucket, check all B keys.
- * 3 If match, return corresponding payload*/
+ * h hash multipliers
+ * The number of hash buckets is 2^S/B and size of each bucket is B
+ */
 
 public class Splash {
 	
@@ -39,9 +30,9 @@ public class Splash {
 		int param = 0;
 		try{
 		B = Integer.parseInt(args[param++]);//0
-		h = Integer.parseInt(args[param++]);//1
+		R = Integer.parseInt(args[param++]);//1
 		S = Integer.parseInt(args[param++]);//2
-		R = Integer.parseInt(args[param++]);//3
+		h = Integer.parseInt(args[param++]);//3
 		inputFile = args[param++];//4
 		dumpFile ="";
 		if(args[param].equals("-dumpfile")){//5
@@ -156,6 +147,7 @@ public class Splash {
 		}
 		if(!inserted){	
 			/*Found no place in the first iteration!..now continue reinserting <= R times */
+			
 			int kickedout[] = {key,payload};
 			for(int i = 0; i < R; i++) {	
 				kickedout = reinsert(kickedout[0],kickedout[1]);
@@ -208,7 +200,7 @@ public class Splash {
 	private static void dump() {
 		
 		String content = new String();
-		content += B + " " + S + " " + h + " " + R + "\n";
+		content += B + " " + S + " " + h + " " + num_inserted + "\n";
 		for(int i = 0; i < hashMultipliers.length; i++) 
 			content += hashMultipliers[i] + " ";
 		content += "\n";
@@ -287,6 +279,7 @@ public class Splash {
 	}
 	
 	private static int[] reinsert(int key, int payload) {	
+		System.out.println("Entered reinsertion loop!!");
 		boolean inserted = false;
 		for(int i = 0; i < hashMultipliers.length; i++) {
 			int index = getIndex(hashMultipliers[i], key); 
@@ -314,6 +307,7 @@ public class Splash {
 		else
 			oldest[index] = 0;
 		return to_reinsert;
+		
 		
 	}
 	
