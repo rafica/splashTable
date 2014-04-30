@@ -138,7 +138,6 @@ int main(int argc, char *argv[]) {
 	strcpy(probefile, argv[2]);
 	strcpy(resultfile, argv[3]);
 	
-	
 	/* Read the hash table from the dump file*/
 	
 	FILE* fp;
@@ -238,13 +237,15 @@ int main(int argc, char *argv[]) {
 		
 	}
 	
-	fclose(fp);	
+	fclose(fp1);	
 	
 	numofProbes = i;
 	
 	/* Probe the hash table using keys in the probe file */
+	
+	FILE* fp2;
 
-	fp = fopen(resultfile , "w");
+	fp2 = fopen(resultfile , "w");
 	
 	for (int j = 0; j < numofProbes; j++) {
 
@@ -256,10 +257,12 @@ int main(int argc, char *argv[]) {
 		int payload = getPayloadFromReg(probeAns);
 		
 		if(payload != 0)
-			fprintf(fp, "%d %d\n", key, payload);
+			fprintf(fp2, "%d %d\n", key, payload);
 			
 				
 	}
+	
+	fclose(fp2);	
 		
 	return 0;
 }

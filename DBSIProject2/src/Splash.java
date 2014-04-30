@@ -90,7 +90,8 @@ public class Splash {
 		}
 		
 		// Dump table to dump.txt
-		dump();
+		if(dumpFile != "")
+			dump();
 		//print2DArray(hashTable);	 
 	}
 	
