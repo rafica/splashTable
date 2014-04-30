@@ -1,0 +1,2 @@
+gcc -std=c99 -msse4 SSESplashProbe.c /usr/lib/x86_64-linux-glibm.a
+./a.out dump.txt probefile.txt resultfile.txt
